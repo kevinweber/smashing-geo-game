@@ -5,6 +5,7 @@ import { useState } from 'https://cdn.skypack.dev/preact/hooks?min';
 import htm from 'https://cdn.skypack.dev/htm?min';
 import { v4 as generateId } from 'https://cdn.skypack.dev/uuid?min';
 import Lobby from './views/Lobby.mjs';
+import Play from './views/Play.mjs';
 
 // import {
 //   WSDataFromServer, BootstrapData, Alert, PeerState,
@@ -35,14 +36,15 @@ const urlWS = `${host}/ws`;
 // Now that we have the WebSocket URL, let's initialize a Websocket and connect to our server.
 const ws = new WebSocket(urlWS);
 
-const defaultName = generateId().substring(0, 6);
+// A channel within your WebSocket refers to a group of people that are "in the same room",
+// playing the same game, allowing them to communicate with each other. If at some point you
+// want to run multiple games in parallel, use the same WebSocket and different channel names.
+// The code in ws.mjs is pretty arbitrary though and you can come up with many other concepts!
+const channel = 'geo';
 
-// // TODO: Only ever have one user who can be the host
-// const queryParams = getQueryParams(window.location.href);
-// const isHost = queryParams.get('isHost') === 'true';
-// const queryMapsApiKey = queryParams.get('mapsApiKey');
-// const defaultMapsApiKey = queryMapsApiKey;
-// const emoji = pickRandomIcon();
+const defaultName = generateId().substring(0, 6);
+const mapsApiKey = '<insert-api-key>';
+
 // let pingInterval;
 
 // function useInitWebSocketHandlers(
@@ -122,22 +124,14 @@ const defaultName = generateId().substring(0, 6);
 //   };
 // }
 
-// function Scripts({ mapsApiKey }: {mapsApiKey?: string}) {
-//   return mapsApiKey ? html`<script
-//       defer
-//       src="https://maps.googleapis.com/maps/api/js?v=beta&key=${mapsApiKey}&libraries=geometry&v=weekly"
-//     ></script>` : null;
-// }
-
 function App() {
-//   const initialBootstrapData = useInitialBootstrapData();
+  const defaultView = 'lobby';
+  const [currentView, setCurrentView] = useState(defaultView);
 
 //   // Global state: Shared with every connected peer
 //   const [globalState, dispatchGlobalState] = useGlobalState();
 
 //   // Local states
-//   const [bootstrapData] = useState<BootstrapData>(initialBootstrapData);
-//   const { channel } = bootstrapData;
 //   const alertState = useState<Alert>({});
 //   const [{ message: alertMessage }, setAlertState] = alertState;
 //   const mapsApiKeyState = useState<string>(defaultMapsApiKey);
@@ -151,36 +145,15 @@ function App() {
 
 //   const alertBanner = alertMessage ? html`<section class="alert">${alertMessage}</section>` : null;
 
-//   const views = {
-//     loading: html`
-//       <section class="full-screen">
-//         <div>…</div>
-//       </section>`,
-//     lobby: html`<${Lobby}
-//       ws=${ws}
-//       defaultName=${defaultName}
-//       isHost=${isHost}
-//       mapsApiKeyState=${mapsApiKeyState}
-//       channel=${channel}
-//       setAlertState=${setAlertState}
-//       globalState=${globalState} />`,
-//     play: html`<${Play}
-//       ws=${ws}
-//       channel=${channel}
-//       globalState=${globalState}
-//       isHost=${isHost} />`,
-//     results: html`<${Results}
-//       ws=${ws}
-//       channel=${channel}
-//       globalState=${globalState}
-//       isHost=${isHost}
-//       mapsApiKey=${mapsApiKey}
-//       setAlertState=${setAlertState} />`,
-//   };
-  useState();
+  const views = {
+    lobby: html`<${Lobby} defaultName=${defaultName} setCurrentView=${setCurrentView} />`,
+    play: html`<${Play} />`,
+    results: html`<${Lobby} defaultName=${defaultName} />`,
+  };
 
   return html`
-    <${Lobby} defaultName=${defaultName} />
+    <script defer src="https://maps.googleapis.com/maps/api/js?v=beta&key=${mapsApiKey}&libraries=geometry&v=weekly"></script>
+    ${views[currentView]}
   `;
   // return html`
   //   <${Scripts} mapsApiKey=${globalState.websocket.shared.mapsApiKey} /> 

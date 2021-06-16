@@ -20,6 +20,7 @@ export default function Lobby({
   // globalState,
   // setAlertState,
   // isHost,
+  setCurrentView,
   defaultName,
   // ws,
 }) {
@@ -37,16 +38,12 @@ export default function Lobby({
     // }, ws);
   }
 
-  function onInputMapsApiKey(event) {
-    console.log('key')
-    // setMapsApiKey(event.target.value);
-  }
-
   function onClickStart() {
     console.log('start')
     // startGame({
     //   channel, mapsApiKey, ws, setAlertState,
     // });
+    setCurrentView('play');
   }
 
   const inputName = html`
@@ -55,20 +52,9 @@ export default function Lobby({
         <input type="text" maxlength="30" placeholder="${defaultName}" onInput="${onInputName}" />
       </label>`;
 
-  const inputMapsApiKey = html`
-      <label>
-        Google Maps JavaScript API Key:
-        <input type="text" maxlength="50" placeholder="${mapsApiKey}" onInput="${onInputMapsApiKey}" />
-      </label>`;
-
-  const readyButton = html`<button class="btn" onClick=${onClickStart}>Start game now</button>`;
-  const keyMissingButton = html`<button class="btn" disabled>Set API key to start the game</button>`;
-  let button = mapsApiKey ? readyButton : keyMissingButton;
-
+  const button = html`<button class="btn" onClick=${onClickStart}>Start game now</button>`;
+  
   return html`
-    <section>
-      ${inputMapsApiKey}
-    </section>
     <section>
       ${inputName}
     </section>

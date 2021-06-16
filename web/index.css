@@ -1,5 +1,11 @@
+/***********************/
+/*** GENERAL STYLING ***/
+/***********************/
+
 :root {
+  /* CSS variables rock! */
   --themeColor: #aa1994;
+  --decoBorderHeight: 6px;
 }
 
 html {
@@ -7,10 +13,13 @@ html {
   -webkit-font-smoothing: antialiased;
 }
 
+/* Eliminate some default browser styling first; personal preference 🤷 */
 * {
-  /* Set all elements to the same size relative to the font size defined for html */
+  /*
+  Set all text to the same size relative to the font size defined for html.
+  Can be useful for truly response webdesign.
+  */
   font-size: 1rem;
-  /* Reset all the styling so that we can do our own magic */
   border: 0;
   margin: 0;
   padding: 0;
@@ -18,7 +27,7 @@ html {
 }
 
 body {
-  border-top: 6px solid var(--themeColor);
+  border-top: var(--decoBorderHeight) solid var(--themeColor);
 }
 
 section {
@@ -37,4 +46,41 @@ button {
 
 li {
   list-style-position: inside;
+}
+
+/*****************************/
+/*** LAYOUT HELPER CLASSES ***/
+/*****************************/
+
+.full-screen {
+  height: calc(100vh - var(--decoBorderHeight));
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.flex-stretch {
+  flex: 1;
+  height: 100%;
+  width: 100%;
+}
+
+.flex-column {
+  display: flex;
+  flex-direction: column;
+}
+
+.flex-row {
+  display: flex;
+  flex-direction: row;
+}
+
+/******************/
+/*** VIEW: PLAY ***/
+/******************/
+
+.map-streetview,
+.map-select {
+  height: 100%;
+  width: 50%;
 }
