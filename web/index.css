@@ -1,0 +1,26 @@
+:root {
+  --brandColor: #916dad;
+}
+
+html {
+  font: 16px/125% arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+* {
+  /* Set all elements to the same size relative to the font size defined for html */
+  font-size: 1rem;
+  /* Reset all the styling so that we can do our own magic */
+  border: 0;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  border-top: 7px solid var(--brandColor);
+}
+
+[hidden] {
+  display: none;
+}

@@ -1,0 +1,29 @@
+{
+  "name": "smashing-geo-game",
+  "version": "1.0.0",
+  "description": "Geo is a smashing real-time multiplayer game",
+  "main": "server/index.mjs",
+  "type": "module",
+  "private": true,
+  "engines": {
+    "node": "15.x",
+    "npm": "7.x"
+  },
+  "scripts": {
+    "development": "NODE_ENV=development nodemon --watch server server/index.mjs",
+    "production": "NODE_ENV=production server/index.mjs",
+    "start": "npm run production"
+  },
+  "keywords": [],
+  "author": "Kevin Weber",
+  "license": "ISC",
+  "dependencies": {
+    "@types/google.maps": "^3.44.6",
+    "express": "^4.17.1",
+    "htm": "^3.0.4",
+    "nodemon": "^2.0.7",
+    "preact": "^10.5.13",
+    "uuid": "^8.3.2",
+    "ws": "^7.4.6"
+  }
+}
