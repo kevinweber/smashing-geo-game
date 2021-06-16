@@ -1,7 +1,7 @@
 import { v4 as uuidV4 } from 'uuid';
 
 // type: CHANNELS = { [channelName: string]: {
-//     state: { shared: {}, peers: {}, peersCount: number }
+//     state: { shared: {}, peers: {} }
 //     sockets: { [guestSocket: WebSocket]: any }
 // }
 const CHANNELS = {};
@@ -85,7 +85,6 @@ function onJoin(message, websocket) {
         state: {
           shared: {},
           peers: {},
-          peersCount: 1,
         },
         sockets: new Map(),
       };
@@ -98,7 +97,6 @@ function onJoin(message, websocket) {
     // Future messages can modify the data for this peer.
     // The data associated with this peer is shared with all other peers.
     CHANNELS[message.channel].state.peers[socketMeta.publicId] = {};
-    CHANNELS[message.channel].state.peersCount = CHANNELS[message.channel].sockets.size;
 
     // Let client know about the assigned peer ID
     sendMessageToPeer({
@@ -124,13 +122,11 @@ function deleteSocket(websocket) {
       sockets.delete(websocket);
       // Delete peer data associated with socket
       delete CHANNELS[channelName].state.peers[socketMeta.publicId];
-      // Update peer count
-      CHANNELS[channelName].state.peersCount = CHANNELS[channelName].sockets.size;
 
       /**
        * If there are no more peers in the channel, delete it
        */
-      if (CHANNELS[channelName].state.peersCount === 0) {
+      if (Object.key(CHANNELS[channelName].state).length === 0) {
         delete CHANNELS[channelName];
         return;
       }

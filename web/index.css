@@ -1,5 +1,5 @@
 :root {
-  --brandColor: #916dad;
+  --themeColor: #aa1994;
 }
 
 html {
@@ -18,9 +18,23 @@ html {
 }
 
 body {
-  border-top: 7px solid var(--brandColor);
+  border-top: 6px solid var(--themeColor);
 }
 
-[hidden] {
-  display: none;
+section {
+  margin: 1em;
+}
+
+button,
+input {
+  padding: 0.5em;
+  border: 2px solid var(--themeColor);
+}
+
+button {
+  cursor: pointer;
+}
+
+li {
+  list-style-position: inside;
 }

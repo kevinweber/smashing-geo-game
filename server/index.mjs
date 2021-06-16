@@ -1,7 +1,7 @@
 import express from 'express';
 import WebSocket from 'ws';
 import https from 'https';
-import { onConnection } from './ws.js';
+import { onConnection } from './ws.mjs';
 
 const app = express();
 const IS_DEV = process.env.NODE_ENV === 'development';

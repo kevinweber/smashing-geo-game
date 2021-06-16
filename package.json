@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "description": "Geo is a smashing real-time multiplayer game",
   "main": "server/index.mjs",
-  "type": "module",
   "private": true,
   "engines": {
     "node": "15.x",

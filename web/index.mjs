@@ -4,6 +4,7 @@ import { h, render } from 'https://cdn.skypack.dev/preact?min';
 import { useState } from 'https://cdn.skypack.dev/preact/hooks?min';
 import htm from 'https://cdn.skypack.dev/htm?min';
 import { v4 as generateId } from 'https://cdn.skypack.dev/uuid?min';
+import Lobby from './views/Lobby.mjs';
 
 // import {
 //   WSDataFromServer, BootstrapData, Alert, PeerState,
@@ -34,7 +35,7 @@ const urlWS = `${host}/ws`;
 // Now that we have the WebSocket URL, let's initialize a Websocket and connect to our server.
 const ws = new WebSocket(urlWS);
 
-const defaultName = generateId();
+const defaultName = generateId().substring(0, 6);
 
 // // TODO: Only ever have one user who can be the host
 // const queryParams = getQueryParams(window.location.href);
@@ -178,7 +179,9 @@ function App() {
 //   };
   useState();
 
-  return 'test';
+  return html`
+    <${Lobby} defaultName=${defaultName} />
+  `;
   // return html`
   //   <${Scripts} mapsApiKey=${globalState.websocket.shared.mapsApiKey} /> 
   //   ${alertBanner}
