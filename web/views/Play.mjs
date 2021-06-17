@@ -1,24 +1,20 @@
 import { h } from 'https://cdn.skypack.dev/preact?min';
-import { useState, useRef, useCallback } from 'https://cdn.skypack.dev/preact/hooks?min';
+import { useEffect, useState, useRef, useCallback } from 'https://cdn.skypack.dev/preact/hooks?min';
 import htm from 'https://cdn.skypack.dev/htm?min';
 // import { GlobalState, LatLng } from '../utils/types';
 // import sendToServer from '../utils/sendToServer';
 // import withGoogle from '../utils/withGoogle';
-// import mapStyles from '../utils/mapStyles';
+import mapStyles from '../utils/mapStyles.mjs';
 // import { getSelfState } from '../utils/globalState';
 
 const html = htm.bind(h);
 
 function useInitMap({
-  globalState, startLatLng, refMapSelect, refMapStreetView, ws, channel,
+  isMapInitialized, startLatLng, refMapSelect, refMapStreetView,
 }) {
-  const isInitialized = useRef();
-  if (isInitialized.current) return;
-  isInitialized.current = true;
-
-  withGoogle().then(() => {
+  // withGoogle().then(() => {
     // https://developers.google.com/maps/documentation/javascript/reference/street-view#StreetViewPanoramaOptions
-    (() => new google.maps.StreetViewPanorama(
+  new window.google.maps.StreetViewPanorama(
       refMapStreetView.current,
       {
         position: startLatLng,
@@ -29,13 +25,13 @@ function useInitMap({
         panControl: false,
         showRoadLabels: false,
         zoomControlOptions: {
-          position: google.maps.ControlPosition.RIGHT_TOP,
+          position: window.google.maps.ControlPosition.RIGHT_TOP,
         },
       },
-    ))();
+    );
 
     // https://developers.google.com/maps/documentation/javascript/reference/map?hl=en_US#MapOptions
-    const map = new google.maps.Map(
+    new window.google.maps.Map(
       refMapSelect.current,
       {
         center: { lat: 49.3072708, lng: 8.6536618 },
@@ -49,37 +45,37 @@ function useInitMap({
       },
     );
 
-    const marker = new google.maps.Marker({
-      map,
-      title: 'Selected location',
-      animation: google.maps.Animation.DROP,
-      draggable: true,
-    });
+    // const marker = new window.google.maps.Marker({
+    //   map,
+    //   title: 'Selected location',
+    //   animation: window.google.maps.Animation.DROP,
+    //   draggable: true,
+    // });
 
-    const selfState = getSelfState(globalState);
-    // Reset previous guess during map initialization
-    // TODO: Use timestamp instead so that this sendToServer isn't necessary
-    if (selfState?.guessLatLng) {
-      sendToServer({
-        type: 'peer-state',
-        channel,
-        data: {
-          guessLatLng: null,
-        },
-      }, ws);
-    }
+    // const selfState = getSelfState(globalState);
+    // // Reset previous guess during map initialization
+    // // TODO: Use timestamp instead so that this sendToServer isn't necessary
+    // if (selfState?.guessLatLng) {
+    //   sendToServer({
+    //     type: 'peer-state',
+    //     channel,
+    //     data: {
+    //       guessLatLng: null,
+    //     },
+    //   }, ws);
+    // }
 
-    map.addListener('click', (mapsMouseEvent) => {
-      marker.setPosition(mapsMouseEvent.latLng);
-      sendToServer({
-        type: 'peer-state',
-        channel,
-        data: {
-          guessLatLng: mapsMouseEvent.latLng,
-        },
-      }, ws);
-    });
-  });
+    // map.addListener('click', (mapsMouseEvent) => {
+    //   marker.setPosition(mapsMouseEvent.latLng);
+    //   sendToServer({
+    //     type: 'peer-state',
+    //     channel,
+    //     data: {
+    //       guessLatLng: mapsMouseEvent.latLng,
+    //     },
+    //   }, ws);
+    // });
+  // });
 }
 
 function Countdown({ ws, channel, endTime }) {
@@ -124,19 +120,27 @@ export default function Play({
   globalState,
   isHost,
 }) {
+
+  const isMapInitialized = useRef();
   const refMapSelect = useRef();
   const refMapStreetView = useRef();
   // const [isViewToggled, setIsViewToggled] = useState(false);
   // const { startLatLng, endTime } = globalState.websocket.shared;
+  const startLatLng = new window.google.maps.LatLng(-34, 151);
 
-  // useInitMap({
-  //   globalState,
-  //   startLatLng,
-  //   refMapSelect,
-  //   refMapStreetView,
-  //   ws,
-  //   channel,
-  // });
+  useEffect(() => {
+    if (isMapInitialized.current || !refMapSelect.current || !refMapStreetView.current) return;
+    isMapInitialized.current = true;
+
+    useInitMap({
+      // globalState,
+      startLatLng,
+      refMapSelect,
+      refMapStreetView,
+      // ws,
+      // channel,
+    });
+  }, [startLatLng])
 
   // TODO: countdown:
   // <${Countdown} channel=${channel} ws=${ws} endTime=${endTime} />

@@ -1,14 +1,14 @@
-import sendToServer from './sendToServer';
-import { LatLng } from './types';
-import withGoogle from './withGoogle';
+// import sendToServer from './sendToServer';
+// import { LatLng } from './types';
+// import withGoogle from './withGoogle';
 
 function getEndTime() {
   const durationMs = 2 * 60 * 1000; // min * s * ms
   return Math.floor((Date.now() + durationMs));
 }
 
-function findLocation(onLocationFoundCallback) {
-  const sv = new google.maps.StreetViewService();
+export function findLocation(onLocationFoundCallback) {
+  const sv = new window.google.maps.StreetViewService();
 
   function findRandomLocation(callback) {
     const lat = (Math.random() * 90) - 90;
@@ -16,12 +16,12 @@ function findLocation(onLocationFoundCallback) {
 
     // Try to find a panorama within xxxxx meters
     sv.getPanorama({
-      location: new google.maps.LatLng(lat, lng),
+      location: new window.google.maps.LatLng(lat, lng),
       radius: 100000, // in meters
-      source: google.maps.StreetViewSource.OUTDOOR,
-      preference: google.maps.StreetViewPreference.NEAREST,
+      source: window.google.maps.StreetViewSource.OUTDOOR,
+      preference: window.google.maps.StreetViewPreference.NEAREST,
     }, callback).catch((err) => {
-      if (err.code === google.maps.StreetViewStatus.ZERO_RESULTS) {
+      if (err.code === window.google.maps.StreetViewStatus.ZERO_RESULTS) {
         // Do nothing. It's expected that we don't find a match all the time.
         return;
       }
@@ -31,7 +31,7 @@ function findLocation(onLocationFoundCallback) {
 
   const onLocationFound = function onLocationFoundR(data, status) {
     // Nothing found? Try again
-    if (status !== google.maps.StreetViewStatus.OK) {
+    if (status !== window.google.maps.StreetViewStatus.OK) {
       findRandomLocation(onLocationFoundR);
       return;
     }
@@ -53,7 +53,7 @@ export function startGame({
     },
   }, ws);
 
-  function setLocation(latLng: LatLng) {
+  function setLocation(latLng) {
     sendToServer({
       type: 'shared-state',
       channel,
@@ -71,7 +71,7 @@ export function startGame({
       findLocation(setLocation);
     })
     .catch((err) => {
-      // If Google can't be loaded, return to lobby and show the error
+      // If window.Google can't be loaded, return to lobby and show the error
       console.error(err);
       setAlertState(err);
       sendToServer({

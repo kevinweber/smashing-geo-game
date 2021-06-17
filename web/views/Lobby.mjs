@@ -1,6 +1,7 @@
 import { h } from 'https://cdn.skypack.dev/preact?min';
 import { useState } from 'https://cdn.skypack.dev/preact/hooks?min';
 import htm from 'https://cdn.skypack.dev/htm?min';
+import { findLocation } from '../utils/play.mjs';
 // import { h } from 'preact';
 // import {
 //   useRef,
@@ -40,10 +41,12 @@ export default function Lobby({
 
   function onClickStart() {
     console.log('start')
+    findLocation(() => {
+      setCurrentView('play');
+    })
     // startGame({
     //   channel, mapsApiKey, ws, setAlertState,
     // });
-    setCurrentView('play');
   }
 
   const inputName = html`

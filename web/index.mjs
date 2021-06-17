@@ -43,7 +43,8 @@ const ws = new WebSocket(urlWS);
 const channel = 'geo';
 
 const defaultName = generateId().substring(0, 6);
-const mapsApiKey = '<insert-api-key>';
+// const mapsApiKey = '<insert-api-key>';
+const mapsApiKey = 'AIzaSyCcKZh8dp2eKlRpH1oDQ7RYHW7TOzebpe0';
 
 // let pingInterval;
 
