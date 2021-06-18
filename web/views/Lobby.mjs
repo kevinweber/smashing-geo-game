@@ -1,52 +1,32 @@
 import { h } from 'https://cdn.skypack.dev/preact?min';
-import { useState } from 'https://cdn.skypack.dev/preact/hooks?min';
 import htm from 'https://cdn.skypack.dev/htm?min';
-import { findLocation } from '../utils/play.mjs';
-// import { h } from 'preact';
-// import {
-//   useRef,
-// } from 'preact/hooks';
-// import htm from 'htm';
-// import { debounce } from 'lodash';
-// import { GlobalState } from '../utils/types';
-// import sendToServer from '../utils/sendToServer';
-// import { startGame } from '../utils/play';
-// import Emoji from './Emoji';
+import { startGame } from '../utils/play.mjs';
+import sendToServer from '../utils/sendToServer.mjs';
 
 const html = htm.bind(h);
 
 export default function Lobby({
-  // mapsApiKeyState: [mapsApiKey, setMapsApiKey],
-  // channel,
-  // globalState,
-  // setAlertState,
-  // isHost,
-  setCurrentView,
+  channel,
+  globalState,
   defaultName,
-  // ws,
+  ws,
 }) {
-  const mapsApiKey = 'todo';
-  const peers = [{name:'a'}, {name:'b'}];
+  const peers = Object.values(globalState.peers);
 
   function onInputName(event) {
-    console.log('name')
-    // sendToServer({
-    //   type: 'peer-state',
-    //   channel,
-    //   data: {
-    //     name: event.target.value || defaultName,
-    //   },
-    // }, ws);
+    sendToServer({
+      type: 'peer-state',
+      channel,
+      data: {
+        name: event.target.value || defaultName,
+      },
+    }, ws);
   }
 
   function onClickStart() {
-    console.log('start')
-    findLocation(() => {
-      setCurrentView('play');
-    })
-    // startGame({
-    //   channel, mapsApiKey, ws, setAlertState,
-    // });
+    startGame({
+      channel, ws,
+    });
   }
 
   const inputName = html`
@@ -73,23 +53,4 @@ export default function Lobby({
       ${button}
     </section>
   `;
-  // return html`
-  //     <section class="guest-list">
-  //       <p>A total of ${globalState.websocket.peersCount} amazing humans are ready to play:</p>
-  //       <ul>
-  //   ${Object.entries(globalState.websocket.peers).map(
-  //   ([publicId, { emoji, name, role }]) => {
-  //     // A peer might not have any data in global state yet (such as a name),
-  //     // at the time when the pages tries to render the first time
-  //     if (!name) return null;
-
-  //     const suffix = globalState.websocketSelf.peerId === publicId ? html` <span class="small">(you)</span>` : null;
-  //     const roleSuffix = role ? html` <span class="small">(${role})</span>` : null;
-
-  //     return html`<li><${Emoji} emoji=${emoji} /> ${name}${roleSuffix}${suffix}</li>`;
-  //   },
-  // )}
-  //       </ul>
-  //     </section>
-  //   `;
 }

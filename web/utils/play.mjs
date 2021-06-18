@@ -1,13 +1,12 @@
-// import sendToServer from './sendToServer';
-// import { LatLng } from './types';
-// import withGoogle from './withGoogle';
+import sendToServer from './sendToServer.mjs';
 
 function getEndTime() {
-  const durationMs = 2 * 60 * 1000; // min * s * ms
+  // const durationMs = 2 * 60 * 1000; // min * s * ms
+  const durationMs = 5 * 1000; // min * s * ms
   return Math.floor((Date.now() + durationMs));
 }
 
-export function findLocation(onLocationFoundCallback) {
+function findLocation(onLocationFoundCallback) {
   const sv = new window.google.maps.StreetViewService();
 
   function findRandomLocation(callback) {
@@ -42,23 +41,13 @@ export function findLocation(onLocationFoundCallback) {
 }
 
 export function startGame({
-  channel, mapsApiKey, ws, setAlertState,
+  channel, ws,
 }) {
-  sendToServer({
-    type: 'shared-state',
-    channel,
-    data: {
-      mapsApiKey,
-      view: 'loading',
-    },
-  }, ws);
-
   function setLocation(latLng) {
     sendToServer({
       type: 'shared-state',
       channel,
       data: {
-        mapsApiKey,
         view: 'play',
         endTime: getEndTime(),
         startLatLng: latLng,
@@ -66,21 +55,5 @@ export function startGame({
     }, ws);
   }
 
-  withGoogle()
-    .then(() => {
-      findLocation(setLocation);
-    })
-    .catch((err) => {
-      // If window.Google can't be loaded, return to lobby and show the error
-      console.error(err);
-      setAlertState(err);
-      sendToServer({
-        type: 'shared-state',
-        channel,
-        data: {
-          mapsApiKey,
-          view: 'lobby',
-        },
-      }, ws);
-    });
+  findLocation(setLocation);
 }

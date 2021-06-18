@@ -73,7 +73,7 @@ function onPing(message, websocket) {
   }, websocket);
 }
 
-/** A guest is joining a channel */
+/** A peer is joining a channel */
 function onJoin(message, websocket) {
   if (!message.channel || !websocket) return;
 
@@ -119,12 +119,10 @@ function deleteSocket(websocket) {
        */
       const socketMeta = CHANNELS[channelName].sockets.get(websocket);
 
-      console.log('should delete…', sockets.size,CHANNELS[channelName].state.peers,socketMeta.publicId)
       // Delete socket
       sockets.delete(websocket);
       // Delete peer data associated with socket
       delete CHANNELS[channelName].state.peers[socketMeta.publicId];
-      console.log('should delete2…', CHANNELS[channelName].state.peers)
 
       /**
        * If there are no more peers in the channel, delete it

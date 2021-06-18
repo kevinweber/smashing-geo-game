@@ -29,35 +29,41 @@ const ws = new WebSocket(urlWS);
 // want to run multiple games in parallel, use the same WebSocket and different channel names.
 // The code in ws.mjs is pretty arbitrary though and you can come up with many other concepts!
 const channelName = 'geo';
+// The default name for YOU that's shared with everyone until you change it
 const defaultName = generateId().substring(0, 6);
 // const mapsApiKey = '<insert-api-key>';
 const mapsApiKey = 'AIzaSyCcKZh8dp2eKlRpH1oDQ7RYHW7TOzebpe0';
 
 function App() {
-  const [currentView, setCurrentView] = useState('lobby');
-  const [globalState, setGlobalState] = useState({});
+  const [globalState, setGlobalState] = useState({ peers: {}, shared: {} });
   const [selfState, setSelfState] = useState({});
 
-  useInitWebSocketHandlers({
+  const sharedProps = {
+    defaultName: defaultName,
     channel: channelName,
-    setGlobalState,
-    setSelfState,
-    defaultName,
-    ws,
-  });
+    globalState: globalState,
+    setGlobalState: setGlobalState,
+    selfState: selfState,
+    setSelfState: setSelfState,
+    ws: ws,
+  };
+
+  useInitWebSocketHandlers(sharedProps);
 
   console.log('Global State:', globalState);
   console.log('Self State:', selfState);
 
   const views = {
-    lobby: html`<${Lobby} defaultName=${defaultName} setCurrentView=${setCurrentView} />`,
-    play: html`<${Play} setCurrentView=${setCurrentView} />`,
-    results: html`<${Results} setCurrentView=${setCurrentView} />`,
+    lobby: html`<${Lobby} ...${sharedProps} />`,
+    play: html`<${Play} ...${sharedProps} />`,
+    results: html`<${Results} ...${sharedProps} />`,
   };
+
+  const currentView = views[globalState.shared.view || 'lobby'];
 
   return html`
     <script defer src="https://maps.googleapis.com/maps/api/js?v=beta&key=${mapsApiKey}&libraries=geometry&v=weekly"></script>
-    ${views[currentView]}
+    ${currentView}
   `;
 }
 

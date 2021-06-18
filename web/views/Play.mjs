@@ -1,16 +1,13 @@
 import { h } from 'https://cdn.skypack.dev/preact?min';
 import { useEffect, useState, useRef } from 'https://cdn.skypack.dev/preact/hooks?min';
 import htm from 'https://cdn.skypack.dev/htm?min';
-// import { GlobalState, LatLng } from '../utils/types';
-// import sendToServer from '../utils/sendToServer';
-// import withGoogle from '../utils/withGoogle';
+import sendToServer from '../utils/sendToServer.mjs';
 import mapStyles from '../utils/mapStyles.mjs';
-// import { getSelfState } from '../utils/globalState';
 
 const html = htm.bind(h);
 
 function useInitMap({
-  isMapInitialized, startLatLng, refMapSelect, refMapStreetView, setCurrentView,
+  isMapInitialized, startLatLng, refMapSelect, refMapStreetView,
 }) {
   // withGoogle().then(() => {
     // https://developers.google.com/maps/documentation/javascript/reference/street-view#StreetViewPanoramaOptions
@@ -79,8 +76,8 @@ function useInitMap({
 }
 
 function Countdown({ 
-  // ws, channel, 
-  setCurrentView,
+  ws,
+  channel,
   endTime,
 }) {
   const [remainingMs, setRemainingMs] = useState(endTime - Date.now());
@@ -96,14 +93,13 @@ function Countdown({
   const seconds = ((remainingMs % 60000) / 1000).toFixed(0);
 
   if (remainingMs <= 0) {
-    // sendToServer({
-    //   type: 'shared-state',
-    //   channel,
-    //   data: {
-    //     view: 'results',
-    //   },
-    // }, ws);
-    setCurrentView('results');
+    sendToServer({
+      type: 'shared-state',
+      channel,
+      data: {
+        view: 'results',
+      },
+    }, ws);
 
     return html`<div>00:00</div>`;
   }
@@ -116,7 +112,6 @@ export default function Play({
   channel,
   globalState,
   isHost,
-  setCurrentView,
 }) {
 
   const isMapInitialized = useRef();
@@ -141,7 +136,6 @@ export default function Play({
       // channel,
     });
   }, [startLatLng])
-  console.log(setCurrentView)
 
   return html`
     <div class="full-screen flex-column">
@@ -150,7 +144,7 @@ export default function Play({
         <div ref=${refMapSelect} class="map-select"></div>
       </div>
       <section>
-        <${Countdown} endTime=${endTime} setCurrentView=${setCurrentView} />
+        <${Countdown} ws=${ws} channel=${channel} endTime=${endTime} />
       </section>
     </div>
     `;

@@ -2,6 +2,7 @@ import { h } from 'https://cdn.skypack.dev/preact?min';
 import { useEffect, useState, useRef } from 'https://cdn.skypack.dev/preact/hooks?min';
 import htm from 'https://cdn.skypack.dev/htm?min';
 import mapStyles from '../utils/mapStyles.mjs';
+import sendToServer from '../utils/sendToServer.mjs';
 // import { h } from 'preact';
 // // eslint-disable-next-line import/no-extraneous-dependencies
 // import {
@@ -30,12 +31,9 @@ function getDistanceInKm({ from, to }) {
 }
 
 export default function Results({
-  // ws,
-  // channel,
+  ws,
+  channel,
   // globalState,
-  // isHost,
-  // mapsApiKey,
-  // setAlertState,
 }) {
   // TODO:
   const globalState = {
@@ -116,7 +114,8 @@ export default function Results({
 
   function onClickNext() {
     startGame({
-      channel, mapsApiKey, ws, setAlertState,
+      channel,
+      ws,
     });
   }
 
