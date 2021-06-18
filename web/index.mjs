@@ -31,8 +31,6 @@ const ws = new WebSocket(urlWS);
 const channelName = 'geo';
 // The default name for YOU that's shared with everyone until you change it
 const defaultName = generateId().substring(0, 6);
-// const mapsApiKey = '<insert-api-key>';
-const mapsApiKey = 'AIzaSyCcKZh8dp2eKlRpH1oDQ7RYHW7TOzebpe0';
 
 function App() {
   const [globalState, setGlobalState] = useState({ peers: {}, shared: {} });
@@ -61,10 +59,11 @@ function App() {
 
   const currentView = views[globalState.shared.view || 'lobby'];
 
-  return html`
-    <script defer src="https://maps.googleapis.com/maps/api/js?v=beta&key=${mapsApiKey}&libraries=geometry&v=weekly"></script>
-    ${currentView}
-  `;
+  return currentView;
 }
 
-render(html`<${App} />`, document.getElementById('root'));
+// Initialize app only once Maps API is loaded so that using "window.google" is safe.
+// There are ways to load the app before the API is ready but they are less straightforward.
+window.initApp = () => {
+  render(html`<${App} />`, document.getElementById('root'));
+}
