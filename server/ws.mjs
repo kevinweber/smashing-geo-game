@@ -1,8 +1,8 @@
 import { v4 as uuidV4 } from 'uuid';
 
-// type: CHANNELS = { [channelName: string]: {
+// type CHANNELS = {
 //     state: { shared: {}, peers: {} }
-//     sockets: { [guestSocket: WebSocket]: any }
+//     sockets: { [connectedSocket: WebSocket]: any }
 // }
 const CHANNELS = {};
 
@@ -34,6 +34,7 @@ function sendMessageToChannel(message) {
   let messageData;
   try {
     messageData = JSON.stringify(message);
+    // Identify the channel relevant for the message
     channel = CHANNELS[message.channel];
   } catch (e) { reportError(e); }
 
@@ -41,11 +42,11 @@ function sendMessageToChannel(message) {
     return;
   }
 
-  // Send a message to every socket in our channel
-  channel.sockets.forEach((meta, guestSocket) => {
-    if (guestSocket) {
+  // Send a message to every socket connected with the identified channel
+  channel.sockets.forEach((meta, connectedSocket) => {
+    if (connectedSocket) {
       try {
-        guestSocket.send(messageData);
+        connectedSocket.send(messageData);
       } catch (e) { reportError(e); }
     }
   });
@@ -118,15 +119,17 @@ function deleteSocket(websocket) {
        */
       const socketMeta = CHANNELS[channelName].sockets.get(websocket);
 
+      console.log('should delete…', sockets.size,CHANNELS[channelName].state.peers,socketMeta.publicId)
       // Delete socket
       sockets.delete(websocket);
       // Delete peer data associated with socket
       delete CHANNELS[channelName].state.peers[socketMeta.publicId];
+      console.log('should delete2…', CHANNELS[channelName].state.peers)
 
       /**
        * If there are no more peers in the channel, delete it
        */
-      if (Object.key(CHANNELS[channelName].state).length === 0) {
+      if (Object.keys(CHANNELS[channelName].state).length === 0) {
         delete CHANNELS[channelName];
         return;
       }
@@ -173,16 +176,15 @@ function onMessage(message, websocket) {
   if (!message || !websocket) return;
 
   try {
+    if (!CHANNELS[message.channel]?.sockets.has(websocket)) {
+      onJoin(message, websocket);
+    }
+
     switch (message.type) {
       // Respond to ping with a pong to keep the connection alive
       // https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API/Writing_WebSocket_servers#pings_and_pongs_the_heartbeat_of_websockets
       case 'ping':
         onPing(message, websocket);
-        break;
-
-      // Set up a new peer
-      case 'join':
-        onJoin(message, websocket);
         break;
 
       // Pass along arbitrary data specific to this peer with every peer
