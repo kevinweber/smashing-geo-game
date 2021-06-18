@@ -1,5 +1,5 @@
 import { h } from 'https://cdn.skypack.dev/preact?min';
-import { useEffect, useState, useRef, useCallback } from 'https://cdn.skypack.dev/preact/hooks?min';
+import { useEffect, useState, useRef } from 'https://cdn.skypack.dev/preact/hooks?min';
 import htm from 'https://cdn.skypack.dev/htm?min';
 // import { GlobalState, LatLng } from '../utils/types';
 // import sendToServer from '../utils/sendToServer';
@@ -10,7 +10,7 @@ import mapStyles from '../utils/mapStyles.mjs';
 const html = htm.bind(h);
 
 function useInitMap({
-  isMapInitialized, startLatLng, refMapSelect, refMapStreetView,
+  isMapInitialized, startLatLng, refMapSelect, refMapStreetView, setCurrentView,
 }) {
   // withGoogle().then(() => {
     // https://developers.google.com/maps/documentation/javascript/reference/street-view#StreetViewPanoramaOptions
@@ -78,8 +78,12 @@ function useInitMap({
   // });
 }
 
-function Countdown({ ws, channel, endTime }) {
-  const [remainingMs, setRemainingMs] = useState<number | null>(endTime - Date.now());
+function Countdown({ 
+  // ws, channel, 
+  setCurrentView,
+  endTime,
+}) {
+  const [remainingMs, setRemainingMs] = useState(endTime - Date.now());
 
   useEffect(() => {
     const intervalId = setInterval(() => {
@@ -91,27 +95,20 @@ function Countdown({ ws, channel, endTime }) {
   const minutes = Math.floor(remainingMs / 60000).toString(); // 60000 = 1000 (ms) * 60 (s)
   const seconds = ((remainingMs % 60000) / 1000).toFixed(0);
 
-  const areFinalSeconds = Number(minutes) === 0 && Number(seconds) < 11;
-  const countdownClasses = `map-countdown${areFinalSeconds ? ' map-countdown--danger' : ''}`;
-
-  const Wrapped = useCallback(
-    ({ children }) => html`<div class=${countdownClasses}><div>${children}</div></div>`,
-    [countdownClasses],
-  );
-
   if (remainingMs <= 0) {
-    sendToServer({
-      type: 'shared-state',
-      channel,
-      data: {
-        view: 'results',
-      },
-    }, ws);
+    // sendToServer({
+    //   type: 'shared-state',
+    //   channel,
+    //   data: {
+    //     view: 'results',
+    //   },
+    // }, ws);
+    setCurrentView('results');
 
-    return html`<${Wrapped} children="00:00" />`;
+    return html`<div>00:00</div>`;
   }
 
-  return html`<${Wrapped} children="${minutes.padStart(2, '0')}:${seconds.padStart(2, '0')}" />`;
+  return html`<div>${minutes.padStart(2, '0')}:${seconds.padStart(2, '0')}</div>`;
 }
 
 export default function Play({
@@ -119,6 +116,7 @@ export default function Play({
   channel,
   globalState,
   isHost,
+  setCurrentView,
 }) {
 
   const isMapInitialized = useRef();
@@ -126,7 +124,9 @@ export default function Play({
   const refMapStreetView = useRef();
   // const [isViewToggled, setIsViewToggled] = useState(false);
   // const { startLatLng, endTime } = globalState.websocket.shared;
+  // TODO:
   const startLatLng = new window.google.maps.LatLng(-34, 151);
+  const endTime = Math.floor((Date.now() + 3 * 1000));
 
   useEffect(() => {
     if (isMapInitialized.current || !refMapSelect.current || !refMapStreetView.current) return;
@@ -141,9 +141,8 @@ export default function Play({
       // channel,
     });
   }, [startLatLng])
+  console.log(setCurrentView)
 
-  // TODO: countdown:
-  // <${Countdown} channel=${channel} ws=${ws} endTime=${endTime} />
   return html`
     <div class="full-screen flex-column">
       <div class="flex-stretch flex-row">
@@ -151,7 +150,7 @@ export default function Play({
         <div ref=${refMapSelect} class="map-select"></div>
       </div>
       <section>
-        todo countdown
+        <${Countdown} endTime=${endTime} setCurrentView=${setCurrentView} />
       </section>
     </div>
     `;

@@ -6,6 +6,7 @@ import htm from 'https://cdn.skypack.dev/htm?min';
 import { v4 as generateId } from 'https://cdn.skypack.dev/uuid?min';
 import Lobby from './views/Lobby.mjs';
 import Play from './views/Play.mjs';
+import Results from './views/Results.mjs';
 
 // import {
 //   WSDataFromServer, BootstrapData, Alert, PeerState,
@@ -126,8 +127,7 @@ const mapsApiKey = 'AIzaSyCcKZh8dp2eKlRpH1oDQ7RYHW7TOzebpe0';
 // }
 
 function App() {
-  const defaultView = 'lobby';
-  const [currentView, setCurrentView] = useState(defaultView);
+  const [currentView, setCurrentView] = useState('lobby');
 
 //   // Global state: Shared with every connected peer
 //   const [globalState, dispatchGlobalState] = useGlobalState();
@@ -148,8 +148,8 @@ function App() {
 
   const views = {
     lobby: html`<${Lobby} defaultName=${defaultName} setCurrentView=${setCurrentView} />`,
-    play: html`<${Play} />`,
-    results: html`<${Lobby} defaultName=${defaultName} />`,
+    play: html`<${Play} setCurrentView=${setCurrentView} />`,
+    results: html`<${Results} setCurrentView=${setCurrentView} />`,
   };
 
   return html`
