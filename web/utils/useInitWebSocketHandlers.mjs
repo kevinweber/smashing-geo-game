@@ -4,6 +4,7 @@ import sendToServer from './sendToServer.mjs';
 export default function useInitWebSocketHandlers({
   channel,
   setGlobalState,
+  setSelfState,
   defaultName,
   ws,
 }) {
@@ -13,13 +14,13 @@ export default function useInitWebSocketHandlers({
   if (isInitialized.current) return;
   isInitialized.current = true;
 
-  // This function is called once the Websocket connection ends, e.g. when the server restarts
+  // This function is called once the WebSocket connection ends, e.g. when the server restarts
   ws.onclose = () => {
     console.log('WebSocket is closed.');
     clearInterval(pingInterval.current);
   };
   
-  // This function is called once the Websocket connection is established
+  // This function is called once the WebSocket connection is established
   ws.onopen = () => {
     console.log('Welcome! WebSocket is open.');
 
@@ -39,11 +40,10 @@ export default function useInitWebSocketHandlers({
       }, ws);
     }, 10000);
 
-    ws.onmessage = (messageFromWebsocket) => {
-      const message = JSON.parse(messageFromWebsocket.data);
+    ws.onmessage = (messageFromWebSocket) => {
+      const message = JSON.parse(messageFromWebSocket.data);
 
       console.log('Message', message);
-      console.log
 
       switch (message.type) {
         // The server acknowledged your ping. Great! This ensures your connection stays alive.
@@ -52,18 +52,12 @@ export default function useInitWebSocketHandlers({
 
         // The state for every peer has changed
         case 'global-state':
-          setGlobalState((previousState) => ({
-            ...previousState,
-            websocket: message.data,
-          }));
+          setGlobalState(message.data);
           break;
 
         // The state for just yourself has changed
         case 'self-state':
-          setGlobalState((previousState) => ({
-            ...previousState,
-            websocketSelf: message.data,
-          }));
+          setSelfState(message.data);
           break;
 
         default:

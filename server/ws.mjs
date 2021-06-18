@@ -176,7 +176,8 @@ function onMessage(message, websocket) {
   if (!message || !websocket) return;
 
   try {
-    if (!CHANNELS[message.channel]?.sockets.has(websocket)) {
+    const isSocketRegistered = CHANNELS[message.channel]?.sockets.has(websocket);
+    if (!isSocketRegistered) {
       onJoin(message, websocket);
     }
 

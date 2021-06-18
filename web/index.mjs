@@ -21,7 +21,7 @@ const host = window.location.origin.replace(/^http/, 'ws');
 // "/ws" must match with the path defined in server/index.js where "handleUpgrade" is run
 const urlWS = `${host}/ws`;
 
-// Now that you have the WebSocket URL, initialize a Websocket and connect to the server.
+// Now that you have the WebSocket URL, initialize a WebSocket and connect to the server.
 const ws = new WebSocket(urlWS);
 
 // A channel within your WebSocket refers to a group of people that are "in the same room",
@@ -36,15 +36,18 @@ const mapsApiKey = 'AIzaSyCcKZh8dp2eKlRpH1oDQ7RYHW7TOzebpe0';
 function App() {
   const [currentView, setCurrentView] = useState('lobby');
   const [globalState, setGlobalState] = useState({});
+  const [selfState, setSelfState] = useState({});
 
   useInitWebSocketHandlers({
     channel: channelName,
     setGlobalState,
+    setSelfState,
     defaultName,
     ws,
   });
 
   console.log('Global State:', globalState);
+  console.log('Self State:', selfState);
 
   const views = {
     lobby: html`<${Lobby} defaultName=${defaultName} setCurrentView=${setCurrentView} />`,
