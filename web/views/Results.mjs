@@ -1,86 +1,43 @@
 import { h } from 'https://cdn.skypack.dev/preact?min';
 import { useEffect, useState, useRef } from 'https://cdn.skypack.dev/preact/hooks?min';
 import htm from 'https://cdn.skypack.dev/htm?min';
-import mapStyles from '../utils/mapStyles.mjs';
+import { startGame } from '../utils/startGame.mjs';
+import getDistanceInKm from '../utils/getDistanceInKm.mjs';
 import sendToServer from '../utils/sendToServer.mjs';
-// import { h } from 'preact';
-// // eslint-disable-next-line import/no-extraneous-dependencies
-// import {
-//   useState, useEffect, useRef, useMemo,
-// } from 'preact/hooks';
-// import htm from 'htm';
-// import {
-//   GlobalState, LatLng, PeerState, RoundRecord,
-// } from '../utils/types';
-// import { startGame } from '../utils/play';
-// import sendToServer from '../utils/sendToServer';
-// import withGoogle from '../utils/withGoogle';
-// import mapStyles from '../utils/mapStyles';
+import initMapWithResults from '../utils/initMapForResults.mjs';
 
 const html = htm.bind(h);
-
-function getDistanceInKm({ from, to }) {
-  const number = (
-    window.google.maps.geometry.spherical.computeDistanceBetween(
-      new window.google.maps.LatLng(from),
-      new window.google.maps.LatLng(to),
-    ) * 0.001
-  );
-  // Only show decimals when distance is below 100 km
-  return Number(number.toFixed(number < 100 ? 2 : 0));
-}
 
 export default function Results({
   ws,
   channel,
-  // globalState,
+  globalState,
+  selfState,
 }) {
-  // TODO:
-  const globalState = {
-    websocket: {
-      shared: {
-        startLatLng: new window.google.maps.LatLng(-34, 151),
-      }
-    }
-  }
-
-  const refMapSelect = useRef();
+  const isMapInitialized = useRef();
+  const refMapResults = useRef();
+  const refMapInstance = useRef();
   const [sortedResults, setResults] = useState([]);
-  const mapRef = useRef();
   
   useEffect(() => {
     // Once map is initialized, don't update its centering to avoid
-    // unexpected "jumps" of the map for a user who's using the map
-    if (mapRef.current) return;
+    // unexpected "jumps" of the map after the user moved it map
+    if (isMapInitialized.current) return;
+    isMapInitialized.current = true;
 
-    mapRef.current = new window.google.maps.Map(
-      refMapSelect.current,
-      {
-        center: globalState.websocket.shared.startLatLng,
-        zoom: 5,
-        minZoom: 2,
-        clickableIcons: false,
-        disableDefaultUI: true,
-        zoomControl: true,
-        styles: mapStyles,
-      },
-    );
-
-    // Set the marker for `startLatLng`
-    (() => new window.google.maps.Marker({
-      map: mapRef.current,
-      position: globalState.websocket.shared.startLatLng,
-      title: 'This is the location that you should have guessed',
-      animation: window.google.maps.Animation.DROP,
-    }))();
-  }, [globalState.websocket.shared.startLatLng]);
+    initMapWithResults({
+      startLatLng: globalState.shared.startLatLng,
+      refMapResults,
+      refMapInstance,
+    });
+  }, [globalState.shared.startLatLng]);
 
   useEffect(() => {
-    const resultsList = Object.entries(globalState.websocket.peers)
+    const resultsList = Object.entries(globalState.peers)
       .map(([publicId, { guessLatLng, ...restProps }]) => {
         const distance = getDistanceInKm({
           from: guessLatLng,
-          to: globalState.websocket.shared.startLatLng,
+          to: globalState.shared.startLatLng,
         });
 
         return [publicId, {
@@ -90,8 +47,8 @@ export default function Results({
         }];
       })
       // A peer might not have any data in global state (such as a name)
-      // at the time when the pages tries to render the first time.
-      // Ignore those results.
+      // at the time when the page tries to render the first time.
+      // Filter out those results.
       .filter(([, { name }]) => !!name)
       // Sort from highest to lowest distance. Treat NaN as lowest.
       .sort(([, a], [, b]) => {
@@ -100,16 +57,11 @@ export default function Results({
         return a.distance - b.distance;
       });
 
-    // Move last result to fourth position to highlight it in the UX alongside the top results
-    if (resultsList.length > 4) {
-      resultsList.splice(3, 0, resultsList.splice(resultsList.length - 1, 1)[0]);
-    }
-
     setResults(resultsList);
   }, [
-    globalState.websocket.peers,
-    globalState.websocket.shared.startLatLng,
-    globalState.websocket.shared.endTime,
+    globalState.peers,
+    globalState.shared.startLatLng,
+    globalState.shared.endTime,
   ]);
 
   function onClickNext() {
@@ -129,65 +81,60 @@ export default function Results({
     }, ws);
   }
 
-  const nextButton = html`<button class="btn" onClick=${onClickNext}>Next round</button>`;
-  const endButton = html`<button class="btn" onClick=${onClickEnd}>End game</button>`;
-
   function placePeerMarkerOnMap({
-    isSelf, position, name, mark,
+    isSelf, position, name,
   }) {
     if (!position) return;
 
     const iconType = isSelf ? 'b' : 'a'; // b == red vs. a == green;
     const strokeColor = isSelf ? '#ee473e' : '#69b32e'; // red vs. green
-    const iconText = isSelf ? 'you' : mark;
+    const iconText = isSelf ? 'you' : name.slice(0, 2);
     const icon = `https://mts.googleapis.com/vt/icon/name=icons/spotlight/spotlight-waypoint-${iconType}.png&text=${iconText}&psize=11&font=fonts/Roboto-Regular.ttf&color=ff333333&ax=44&ay=48&scale=1`;
 
     // Set marker
-    (() => new window.google.maps.Marker({
-      map: mapRef.current,
+    new window.google.maps.Marker({
+      map: refMapInstance.current,
       position,
       title: name,
       icon,
-    }))();
+    });
 
     // Draw line to startLatLng
-    (() => new window.google.maps.Polyline({
+    new window.google.maps.Polyline({
       strokeColor,
       strokeOpacity: 0.8,
       strokeWeight: 2,
-      map: mapRef.current,
-      path: [position, globalState.websocket.shared.startLatLng],
-    }))();
+      map: refMapInstance.current,
+      path: [position, globalState.shared.startLatLng],
+    });
   }
 
   const placeResult = (
-    [publicId, { name, guessLatLng }],
+    [publicId, { name, guessLatLng, distance }],
   ) => {
-    const isSelf = globalState.websocketSelf.peerId === publicId;
-
     placePeerMarkerOnMap({
-      isSelf, position: guessLatLng, name, mark: placements.first.mark,
+      isSelf: selfState.peerId === publicId,
+      position: guessLatLng,
+      name,
     });
 
-    const result = Number.isNaN(distance) ? '--' : `${distance} km`;
+    const formattedDistance = Number.isNaN(distance) ? '--' : `${distance} km`;
     
-    return html`<div>${name}: ${result}</div>`;
+    return html`<div>${name}: ${formattedDistance}</div>`;
   };
 
   return html`
-    <section class="full-screen flex-row">
-      <div class="scrollable results">
-        <div class="scrollable-inner">
-          <section class="relaunch-section">
-            ${nextButton}
-            ${endButton}
-          </section>
-          <section>
-            ${sortedResults.map(placeResult)}
-          </section>
-        </div>
+    <div class="full-screen flex-row">
+      <div class="flex-column flex-stretch">
+        <section>
+          <button class="btn" onClick=${onClickNext}>Next round</button>
+          <button class="btn" onClick=${onClickEnd}>End game</button>
+        </section>
+        <section>
+          ${sortedResults.map(placeResult)}
+        </section>
       </div>
-      <div ref=${refMapSelect} class="map-result"></div>
-    </section>
+      <div ref=${refMapResults} class="flex-stretch"></div>
+    </div>
   `;
 }

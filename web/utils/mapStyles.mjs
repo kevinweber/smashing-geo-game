@@ -1,4 +1,4 @@
-// https://mapstyle.withgoogle.com/
+// Style wizard: https://mapstyle.withgoogle.com/
 export default [
   {
     featureType: 'administrative.land_parcel',

@@ -1,6 +1,6 @@
 import { h } from 'https://cdn.skypack.dev/preact?min';
 import htm from 'https://cdn.skypack.dev/htm?min';
-import { startGame } from '../utils/play.mjs';
+import { startGame } from '../utils/startGame.mjs';
 import sendToServer from '../utils/sendToServer.mjs';
 
 const html = htm.bind(h);
@@ -38,19 +38,11 @@ export default function Lobby({
   const button = html`<button class="btn" onClick=${onClickStart}>Start game now</button>`;
   
   return html`
-    <section>
-      ${inputName}
-    </section>
+    <section>${inputName}</section>
     <section>
       <p>These amazing humans are ready to play:</p>
-      <ul>
-        ${peers.map((peer) => {
-          return html`<li>${peer.name}</li>`
-        })}
-      </ul>
+      <ul>${peers.map((peer) => html`<li>${peer.name}</li>`)}</ul>
     </section>
-    <section>
-      ${button}
-    </section>
+    <section>${button}</section>
   `;
 }

@@ -39,17 +39,14 @@ function App() {
   const sharedProps = {
     defaultName: defaultName,
     channel: channelName,
-    globalState: globalState,
-    setGlobalState: setGlobalState,
-    selfState: selfState,
-    setSelfState: setSelfState,
-    ws: ws,
+    globalState,
+    setGlobalState,
+    selfState,
+    setSelfState,
+    ws,
   };
 
   useInitWebSocketHandlers(sharedProps);
-
-  console.log('Global State:', globalState);
-  console.log('Self State:', selfState);
 
   const views = {
     lobby: html`<${Lobby} ...${sharedProps} />`,

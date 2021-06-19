@@ -15,10 +15,7 @@ html {
 
 /* Eliminate some default browser styling first; personal preference 🤷 */
 * {
-  /*
-  Set all text to the same size relative to the font size defined for html.
-  Can be useful for truly response webdesign.
-  */
+  /* Set all text to the same size relative to the font size defined for html. */
   font-size: 1rem;
   border: 0;
   margin: 0;
@@ -36,12 +33,16 @@ section {
 
 button,
 input {
-  padding: 0.5em;
   border: 2px solid var(--themeColor);
+  padding: 0.5em;
 }
 
 button {
   cursor: pointer;
+}
+
+button:not(:last-of-type) {
+  margin-right: 0.5em;
 }
 
 li {
@@ -53,10 +54,10 @@ li {
 /*****************************/
 
 .full-screen {
-  height: calc(100vh - var(--decoBorderHeight));
-  display: flex;
-  justify-content: center;
   align-items: center;
+  display: flex;
+  height: calc(100vh - var(--decoBorderHeight));
+  justify-content: center;
 }
 
 .flex-stretch {
@@ -73,14 +74,4 @@ li {
 .flex-row {
   display: flex;
   flex-direction: row;
-}
-
-/******************/
-/*** VIEW: PLAY ***/
-/******************/
-
-.map-streetview,
-.map-select {
-  height: 100%;
-  width: 50%;
 }

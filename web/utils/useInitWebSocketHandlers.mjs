@@ -43,8 +43,6 @@ export default function useInitWebSocketHandlers({
     ws.onmessage = (messageFromWebSocket) => {
       const message = JSON.parse(messageFromWebSocket.data);
 
-      console.log('Message', message);
-
       switch (message.type) {
         // The server acknowledged your ping. Great! This ensures your connection stays alive.
         case 'pong':
