@@ -111,6 +111,7 @@ export default function Results({
 
   const placeResult = (
     [publicId, { name, guessLatLng, distance }],
+    index,
   ) => {
     placePeerMarkerOnMap({
       isSelf: selfState.peerId === publicId,
@@ -119,8 +120,9 @@ export default function Results({
     });
 
     const formattedDistance = Number.isNaN(distance) ? '--' : `${distance} km`;
+    const placement = `${index + 1})`
     
-    return html`<div>${name}: ${formattedDistance}</div>`;
+    return html`<div>${placement} ${name}: ${formattedDistance}</div>`;
   };
 
   return html`
