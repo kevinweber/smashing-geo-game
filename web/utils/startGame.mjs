@@ -6,12 +6,16 @@ function getEndTime() {
   return Math.floor((Date.now() + durationMs));
 }
 
+function getRandomInRange(from, to, fixed) {
+  return Number((Math.random() * (to - from) + from).toFixed(fixed));
+}
+
 function findLocation(onLocationFoundCallback) {
   const sv = new window.google.maps.StreetViewService();
 
   function findRandomLocation(callback) {
-    const lat = (Math.random() * 90) - 90;
-    const lng = (Math.random() * 180) - 180;
+    const lat = getRandomInRange(-90, 90, 3);
+    const lng = getRandomInRange(-180, 180, 3);
 
     // Try to find a panorama within xxxxx meters
     sv.getPanorama({
