@@ -30,13 +30,13 @@ export default function Lobby({
   }
 
   const inputName = html`
-      <label>
-        Your Name:
-        <input type="text" maxlength="30" placeholder="${defaultName}" onInput="${onInputName}" />
-      </label>`;
+    <label>
+      Your Name:
+      <input type="text" maxlength="30" placeholder="${defaultName}" onInput="${onInputName}" />
+    </label>`;
 
   const button = html`<button class="btn" onClick=${onClickStart}>Start game now</button>`;
-  
+
   return html`
     <section>${inputName}</section>
     <section>
