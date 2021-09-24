@@ -44,34 +44,3 @@ button {
 button:not(:last-of-type) {
   margin-right: 0.5em;
 }
-
-li {
-  list-style-position: inside;
-}
-
-/*****************************/
-/*** LAYOUT HELPER CLASSES ***/
-/*****************************/
-
-.full-screen {
-  align-items: center;
-  display: flex;
-  height: calc(100vh - var(--decoBorderHeight));
-  justify-content: center;
-}
-
-.flex-stretch {
-  flex: 1;
-  height: 100%;
-  width: 100%;
-}
-
-.flex-column {
-  display: flex;
-  flex-direction: column;
-}
-
-.flex-row {
-  display: flex;
-  flex-direction: row;
-}

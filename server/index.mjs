@@ -1,7 +1,5 @@
 import express from 'express';
-import WebSocket from 'ws';
 import https from 'https';
-import { onConnection } from './ws.mjs';
 
 const app = express();
 const IS_DEV = process.env.NODE_ENV === 'development';
@@ -16,12 +14,6 @@ app.use(express.static('web'));
 
 app.get('/', (req, res) => {
   res.sendFile('index.html', { root: 'web' });
-});
-
-// Combine "noServer == true" with "handleUpgrade" for the WebSocket to work in production
-const websocketServer = new WebSocket.Server({ noServer: true });
-app.get('/ws', (req) => {
-  websocketServer.handleUpgrade(req, req.socket, Buffer.alloc(0), onConnection);
 });
 
 app.listen(PORT, () => {
