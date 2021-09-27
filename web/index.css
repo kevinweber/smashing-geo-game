@@ -27,20 +27,21 @@ body {
   border-top: var(--decoBorderHeight) solid var(--themeColor);
 }
 
-section {
-  margin: 1em;
+.grid {
+  display: flex;
+  flex-direction: column;
 }
 
-button,
-input {
-  border: 2px solid var(--themeColor);
-  padding: 0.5em;
+.cell {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 50px;
+  width: 50px;
+  border: 1px solid skyblue;
 }
 
-button {
-  cursor: pointer;
-}
-
-button:not(:last-of-type) {
-  margin-right: 0.5em;
+.row {
+  display: flex;
+  flex-direction: row;
 }
